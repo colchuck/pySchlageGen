@@ -5,8 +5,8 @@ class schlageKey(object):
         self.numCuts = numCuts
         
     def getCuts(self):
-        return cutList
+        return self.cutList
     
     def getNumCuts(self):
-        return numCuts
+        return self.numCuts
         
