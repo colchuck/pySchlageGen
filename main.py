@@ -11,22 +11,26 @@ gen.addMasterKey(mastKey)
 output = gen.genSystem(tenants)
 i=1
 for e in output:
-    if i< 9:
+    if i < 10:
+        o= "   " + str(i)
+    elif i < 100:
         o= "  " + str(i)
-    if i < 100 and i>9:
+    elif i < 1000:
         o= " " + str(i)
+    else:
+        o = str(i)
     print(o + ":  ", end="")
     for f in e:
         print(str(f) + " ", end="")
     print("\n--------------------")
     bitting = gen.bittingCalc(e)
-    print("  M:  ",end="")
+    print("   M:  ",end="")
     for f in bitting[0]:
         if f==0:
             f="x"
         print(str(f) + " ",end="")
     print()
-    print("  B:  ",end="")
+    print("   B:  ",end="")
     for l in bitting[1]:
         print(str(l) + " ",end="")
     print("\n")

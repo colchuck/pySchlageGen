@@ -1,6 +1,10 @@
 class schlageGen(object):
     #code
     masterKey = None
+    tenantUp = None
+    tenantSet = None
+    tenants= None
+
     def __init__(self):
         self.masterKey = None
         
@@ -11,26 +15,37 @@ class schlageGen(object):
         mastCuts = masterKey.getCuts()
         
     def genSystem(self,tenants):
-        mastCuts = self.masterKey.getCuts()[:]
-        tenantTemp = mastCuts[:]
-        tenantSet = []
+        tenantUp = self.masterKey.getCuts()[:]
+        self.tenants=tenants
+        self.tenantSet = []
+        #i=0
+        #while i< len(tenantUp):
+        #   tenantUp[i] = tenantUp[i]+2
+        #   i=i+1
+        self.tenantUp = tenantUp[:]
+        self.recSysGen(tenantUp,len(tenantUp))
+        return self.tenantSet
+        
+    def recSysGen(self, tenantTemp, k):
         j=0
-        f=0
-        while f < len(mastCuts):
-            while j < len(mastCuts):
-                tenantTemp = mastCuts[:]
-                while tenantTemp[j] < 8:
-                    tenantTemp[j] = tenantTemp[j] + 2
-                    tenantSet.append(tenantTemp[:])
-                    if len(tenantSet) >= tenants:
-                        return tenantSet
-                j=j+1
-            j=f +1    
-            if not (mastCuts[f] + 3 >=10 ): 
-                mastCuts[f] = mastCuts[f] + 3
+        while j<5:
+            d = tenantTemp[-k]
+            if d+2==10 or d+2==11:
+                d = d%2
             else:
-                f=f+1
-    
+                d = d+2
+            tenantTemp[-k] = d
+            if k==1:
+                if not d == self.tenantUp[-k]:
+                    self.tenantSet.append(tenantTemp[:])
+                if len(self.tenantSet)>=self.tenants:
+                   return 0
+            else:
+                if not tenantTemp[-k] == self.tenantUp[-k]:
+                    if self.recSysGen(tenantTemp,k-1) == 0:
+                        return 0
+            j=j+1
+            
     def bittingCalc(self,tenantKey):
         tenCuts = tenantKey[:]
         mastCuts = self.masterKey.getCuts()[:]
