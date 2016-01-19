@@ -13,18 +13,18 @@ class schlageGen(object):
     def genSystemSub(self,subMasters,tenantsPerSub):
         mastCuts = masterKey.getCuts()
         
-    def genSystem(self,tenants):
+    def genSystem(self,tenants,inc=2):
         self.tenants=tenants
         self.tenantSet = []
-        self.__recSysGen(self.masterKey.getCuts()[:],len(self.masterKey.getCuts()))
+        self.__recSysGen(self.masterKey.getCuts()[:],len(self.masterKey.getCuts()),inc)
         return self.tenantSet
         
-    def __recSysGen(self, tenantTemp, k):
+    def __recSysGen(self, tenantTemp, k, inc=2):
         j=0
         while j<5:
             d = tenantTemp[-k]
-            if d+2==10 or d+2==11: d = d%2
-            else: d = d+2
+            if d+inc>9: d = d%inc
+            else: d = d+inc
             tenantTemp[-k] = d
             if k==1:
                 if not d == self.masterKey.getCuts()[-k] and self.__maxCheck(tenantTemp):
@@ -32,7 +32,7 @@ class schlageGen(object):
                 if len(self.tenantSet)>=self.tenants: return 0
             else:
                 if not tenantTemp[-k] == self.masterKey.getCuts()[-k]:
-                    if self.__recSysGen(tenantTemp,k-1) == 0: return 0
+                    if self.__recSysGen(tenantTemp,k-1, inc) == 0: return 0
             j=j+1
             
     def __maxCheck(self,keyCuts, max=6):
@@ -54,7 +54,3 @@ class schlageGen(object):
             master.append(max(chamber) - min(chamber))
             i=i+1
         return [master,bottom]
-            
-        
-        
-        

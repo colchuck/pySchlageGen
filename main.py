@@ -1,14 +1,19 @@
 import schlageGen
 import schlageKey
-
-mastRaw = input("Master Key:")
+import signal
+import sys
+def ctrlc_handler(signal, frame):
+        print('\nCtrl+C pressed')
+        sys.exit(0)
+signal.signal(signal.SIGINT, ctrlc_handler)
+mastRaw = input("Master Key:").rstrip()
 tenants = int(input("Tenants:"))
 mastCuts = mastRaw.split(" ")
 mastCuts = list(map(int, mastCuts))
 mastKey = schlageKey.schlageKey(mastCuts,len(mastCuts))
 gen = schlageGen.schlageGen()
 gen.addMasterKey(mastKey)
-output = gen.genSystem(tenants)
+output = gen.genSystem(tenants,1)
 i=1
 for e in output:
     if i < 10:
@@ -22,7 +27,7 @@ for e in output:
     print(o + ":  ", end="")
     for f in e:
         print(str(f) + " ", end="")
-    print("\n--------------------")
+    print("\n---------------------")
     bitting = gen.bittingCalc(e)
     print("   M:  ",end="")
     for f in bitting[0]:
@@ -35,3 +40,4 @@ for e in output:
         print(str(l) + " ",end="")
     print("\n")
     i=i+1
+exit(0)
