@@ -8,12 +8,13 @@ def ctrlc_handler(signal, frame):
 signal.signal(signal.SIGINT, ctrlc_handler)
 mastRaw = input("Master Key:").rstrip()
 tenants = int(input("Tenants:"))
+inc = int(input("Increment:"))
 mastCuts = mastRaw.split(" ")
 mastCuts = list(map(int, mastCuts))
 mastKey = schlageKey.schlageKey(mastCuts,len(mastCuts))
 gen = schlageGen.schlageGen()
 gen.addMasterKey(mastKey)
-output = gen.genSystem(tenants,1)
+output = gen.genSystem(tenants,inc)
 i=1
 for e in output:
     if i < 10:
