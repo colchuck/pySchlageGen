@@ -20,9 +20,12 @@ class schlageGen(object):
         
     def __recSysGen(self, tenantTemp, k, inc=2):
         j=0
-        while j<10:
+        if inc%2==1: m =10
+        else: m =5   
+        while j<m:
             d = tenantTemp[-k]
-            if d+inc>9: d = int(str(d+inc)[-1])
+            if d+inc>9:
+                d = int(str(d+inc)[-1])
             else: d = d+inc
             tenantTemp[-k] = d
             if k==1:
