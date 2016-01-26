@@ -1,5 +1,4 @@
 import schlageGen
-import schlageKey
 import signal
 import sys
 def ctrlc_handler(signal, frame):
