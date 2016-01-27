@@ -1,7 +1,7 @@
 import sys
-from PyQt5.QtWidgets import (QWidget, QMessageBox,QSpinBox,QToolTip, QGridLayout,QAction, qApp, QMainWindow, QHBoxLayout,QApplication, QVBoxLayout, QFileDialog,
+from PyQt5.QtWidgets import (QWidget, QTextEdit, QMessageBox, QFormLayout, QSpinBox,QToolTip, QGridLayout,QAction, qApp, QMainWindow, QHBoxLayout,QApplication, QVBoxLayout, QFileDialog,
     QPushButton, QApplication, QTextBrowser, QTableWidget, QLineEdit, QListWidgetItem, QListWidget, QLabel)
-from PyQt5.QtGui import (QFont,QIcon)
+from PyQt5.QtGui import (QFont, QFontDatabase,QIcon)
 from schlageGen import schlageGen
 from os.path import expanduser
 from PyQt5.QtCore import *
@@ -15,6 +15,7 @@ class Gui(QMainWindow):
     rowStore = None
     Gen = None
     mastInput = None
+    keyNum=1
 
     def __init__(self):
         super().__init__()
@@ -47,9 +48,13 @@ class Gui(QMainWindow):
         #widgets
         grid = QGridLayout()
         horiz = QVBoxLayout()
+        bigHoriz = QHBoxLayout()
         horizLayout = QHBoxLayout()
         window = QWidget()
-        window.setLayout(horiz)
+        window.setLayout(bigHoriz)
+        leftPane = QFormLayout()
+        bigHoriz.addLayout(leftPane)
+        bigHoriz.addLayout(horiz)
         self.setCentralWidget(window)
         btn = QPushButton('Generate', self)
         btn.clicked.connect(lambda: self.runGen())
@@ -57,7 +62,7 @@ class Gui(QMainWindow):
         clearBtn.clicked.connect(self.clearList)
         self.mainText = QListWidget(self)
         self.mainText.itemSelectionChanged.connect(self.listItemClicked)
-        self.mainText.setStyleSheet("font: 13pt Arial;")
+        self.mainText.setFont(QFontDatabase.systemFont(QFontDatabase.FixedFont))
         self.mastInput =[]
         i=0
         while i<6:
@@ -72,10 +77,27 @@ class Gui(QMainWindow):
         self.mast = QLineEdit()
         self.tenants = QLineEdit()
         self.inc = QLineEdit()
+        self.title =QLineEdit()
+        self.title.setMinimumWidth(200)
+        self.desc = QLineEdit()
+        self.address = QLineEdit()
+        self.contact = QLineEdit()
+        self.phone = QLineEdit()
+        self.email = QLineEdit()
+        self.notes = QTextEdit()
+        self.keyway = QLineEdit()
         label = QLabel("Master Cuts")
         incLabel = QLabel("Increment")
         tenantLabel = QLabel("Tenants")
         #add widgets to layouts
+        leftPane.addRow(QLabel("Title"),self.title)
+        leftPane.addRow(QLabel("Description"),self.desc)
+        leftPane.addRow(QLabel("Keyway"),self.keyway)
+        leftPane.addRow(QLabel("Address"),self.address)
+        leftPane.addRow(QLabel("contact"),self.contact)
+        leftPane.addRow(QLabel("Phone"),self.phone)
+        leftPane.addRow(QLabel("Email"),self.email)
+        leftPane.addRow(QLabel("Notes"),self.notes)
         grid.addWidget(incLabel,3,0)
         grid.addWidget(tenantLabel,2,0)
         grid.addWidget(label,1,0)
@@ -88,7 +110,7 @@ class Gui(QMainWindow):
         grid.addWidget(self.inc,3,1)
         grid.addLayout(horizLayout,1,1)
         #window properties
-        self.setGeometry(300, 300, 300, 600)
+        self.setGeometry(300, 300, 500, 425)
         self.setWindowTitle('PySchlageGen')
         self.show()
 
@@ -98,6 +120,7 @@ class Gui(QMainWindow):
             
     def runGen(self):
         self.mainText.clear()
+        self.keyNum=1
         text = self.mast.text()
         mastCuts = []
         try:
@@ -110,26 +133,28 @@ class Gui(QMainWindow):
             self.gen = schlageGen()
             self.gen.addMasterKey(mastCuts)
             output = self.gen.genSystem(tenants,inc)
-            i=0
-            for o in output:
-                f=""
-                for e in o:
-                  f = f+ str(e) + " "
-                self.mainText.insertItem(i,f)
-                i=i+1
+            self.displayKeys(output)
         except:
             pass
         
     def displayKeys(self,output):
         i=0
         for o in output:
-            f=""
+            if self.keyNum < 10:
+                f= str(self.keyNum) + ":     "
+            elif self.keyNum < 100:
+                f= str(self.keyNum) + ":   "
+            elif self.keyNum < 1000:
+                f= str(self.keyNum) + ": "
+            else:
+                f = str(self.keyNum)+":"
             for e in o:
               f = f+ str(e) + " "
             item = QListWidgetItem(f)
             self.mainText.insertItem(i,item)
             i=i+1
-
+            self.keyNum = self.keyNum+1
+               
     def formatText(self,flist,space=True,inj=" "):
         out = ""
         for e in flist[:-1]:
@@ -140,6 +165,7 @@ class Gui(QMainWindow):
         return out
 
     def clearList(self):
+        self.keyNum = 1
         self.mainText.clear()
         self.tenants.clear()
         self.inc.clear()
@@ -153,21 +179,22 @@ class Gui(QMainWindow):
             if self.rowStore != None:
                 self.mainText.takeItem(self.rowStore+1)
                 self.mainText.takeItem(self.rowStore+1)
-            tenCuts = item.text().rstrip().split(" ")
+            tenCuts = self.gen.getSystem()[int(item.text().split(":")[0])-1]
             tenCuts = list(map(int, tenCuts))
             output = self.gen.bittingCalc(tenCuts)
             row = self.mainText.currentRow()
             self.rowStore = row
             flags = item.flags()
             flags ^= Qt.ItemIsEnabled
-            item = QListWidgetItem(self.formatText(output[0]))
+            item = QListWidgetItem("        "+self.formatText(output[0]))
             item.setFlags(flags)
-            item2 = QListWidgetItem(self.formatText(output[1]))
+            item2 = QListWidgetItem("        "+self.formatText(output[1]))
             item2.setFlags(flags)
             self.mainText.insertItem(row+1,item)
             self.mainText.insertItem(row+2,item2)
 
     def fileOpen(self):
+        self.clearList()
         home = expanduser("~")
         fname = QFileDialog.getOpenFileName(self, 'Open file', home,"*.mks")
         data = None
@@ -180,6 +207,22 @@ class Gui(QMainWindow):
             self.gen.addMasterKey(master)
             del sys[0]
             self.inc.setText(str(sys[0]))
+            del sys[0]
+            self.title.setText(str(sys[0]))
+            del sys[0]
+            self.desc.setText(str(sys[0]))
+            del sys[0]
+            self.keyway.setText(str(sys[0]))
+            del sys[0]
+            self.address.setText(str(sys[0]))
+            del sys[0]
+            self.contact.setText(str(sys[0]))
+            del sys[0]
+            self.phone.setText(str(sys[0]))
+            del sys[0]
+            self.email.setText(str(sys[0]))
+            del sys[0]
+            self.notes.setPlainText(str(sys[0]))
             del sys[0]
             self.gen.setTenants(sys)
             self.displayKeys(sys)
@@ -196,9 +239,17 @@ class Gui(QMainWindow):
             with open(fname[0],"w") as thefile:
                 thefile.write("%s," % self.formatText(self.gen.getMasterKey(),False))
                 thefile.write("%s," % self.inc.text())
+                thefile.write("%s," % self.title.text())
+                thefile.write("%s," % self.desc.text())
+                thefile.write("%s," % self.keyway.text())
+                thefile.write("%s," % self.address.text())
+                thefile.write("%s," % self.contact.text())
+                thefile.write("%s," % self.phone.text())
+                thefile.write("%s," % self.email.text())
+                thefile.write("%s," % self.notes.toPlainText())
                 for e in self.gen.getSystem()[:-1]:
                     thefile.write("%s," % self.formatText(e,False))
-                thefile.write("%s" % self.formatText(e,False))
+                thefile.write("%s" % self.formatText(self.gen.getSystem()[-1],False))
 
     def closeEvent(self, event):
         reply = QMessageBox.question(self, 'Message',
