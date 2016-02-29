@@ -178,6 +178,8 @@ class Gui(QMainWindow):
         if self.gen != None:
             printSetup = PrintSetup(self)
             printSetup.exec()
+        else:
+            QMessageBox.about(self, "Error","Please generate a system before printing.")
 
     def clearList(self):
         self.title.clear()
@@ -256,25 +258,28 @@ class Gui(QMainWindow):
             self.tenants.setText(str(len(sys)))
 
     def fileSave(self):
-        home = expanduser("~")
-        fname = QFileDialog.getSaveFileName(self, 'Open file', home, "*.mks")
-        if fname[0]:
-            with open(fname[0], "w") as thefile:
-                thefile.write("%s`" % self.formatText(
-                    self.gen.getMasterKey(), False))
-                thefile.write("%s`" % self.inc.text())
-                thefile.write("%s`" % self.title.text())
-                thefile.write("%s`" % self.desc.text())
-                thefile.write("%s`" % self.keyway.text())
-                thefile.write("%s`" % self.address.text())
-                thefile.write("%s`" % self.contact.text())
-                thefile.write("%s`" % self.phone.text())
-                thefile.write("%s`" % self.email.text())
-                thefile.write("%s`" % self.notes.toPlainText())
-                for e in self.gen.getSystem()[:-1]:
-                    thefile.write("%s`" % self.formatText(e, False))
-                thefile.write("%s" % self.formatText(
-                    self.gen.getSystem()[-1], False))
+        if self.gen != None:
+            home = expanduser("~")
+            fname = QFileDialog.getSaveFileName(self, 'Open file', home, "*.mks")
+            if fname[0]:
+                with open(fname[0], "w") as thefile:
+                    thefile.write("%s`" % self.formatText(
+                        self.gen.getMasterKey(), False))
+                    thefile.write("%s`" % self.inc.text())
+                    thefile.write("%s`" % self.title.text())
+                    thefile.write("%s`" % self.desc.text())
+                    thefile.write("%s`" % self.keyway.text())
+                    thefile.write("%s`" % self.address.text())
+                    thefile.write("%s`" % self.contact.text())
+                    thefile.write("%s`" % self.phone.text())
+                    thefile.write("%s`" % self.email.text())
+                    thefile.write("%s`" % self.notes.toPlainText())
+                    for e in self.gen.getSystem()[:-1]:
+                        thefile.write("%s`" % self.formatText(e, False))
+                    thefile.write("%s" % self.formatText(
+                        self.gen.getSystem()[-1], False))
+        else:
+            QMessageBox.about(self, "Error","Please generate a system before saving.")
 
     def closeEvent(self, event):
         reply = QMessageBox.question(self, 'Message',
