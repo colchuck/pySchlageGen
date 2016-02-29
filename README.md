@@ -13,3 +13,5 @@ CLI Usage: python3 cli.py
 CLI will then prompt for needed information. Flags are also planned to be available as well.
 System saving is not supported by the CLI; This is a feature that will be included in future releases. 
 
+WINDOWS:
+requires https://www.riverbankcomputing.com/software/pyqt/download5 and https://www.python.org/downloads/release/python-343/ in order to work!
